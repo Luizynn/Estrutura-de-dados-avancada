@@ -1,15 +1,73 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.util.Scanner;
+
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        ArvoreBinaria arvore = new ArvoreBinaria();
+        Scanner scanner = new Scanner(System.in);
+        int opcao = 0;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+        System.out.println("Bem-vindo ao testador da Árvore Binária!");
+
+        while (opcao != 5) {
+            System.out.println("\n--- MENU ---");
+            System.out.println("1. Inserir valor");
+            System.out.println("2. Deletar valor");
+            System.out.println("3. Buscar valor (Contains)");
+            System.out.println("4. Mostrar Árvore (Interface Gráfica)");
+            System.out.println("5. Sair");
+            System.out.print("Escolha uma opção: ");
+
+            if (!scanner.hasNextInt()) {
+                System.out.println("Entrada inválida. Por favor, digite um número.");
+                scanner.next();
+                continue;
+            }
+
+            opcao = scanner.nextInt();
+
+            switch (opcao) {
+                case 1:
+                    System.out.print("Digite o valor para inserir: ");
+                    int valorInserir = scanner.nextInt();
+                    if (arvore.insert(valorInserir)) {
+                        System.out.println("-> Valor " + valorInserir + " inserido com sucesso!");
+                    } else {
+                        System.out.println("-> O valor " + valorInserir + " já existe na árvore.");
+                    }
+                    break;
+
+                case 2:
+                    System.out.print("Digite o valor para deletar: ");
+                    int valorDeletar = scanner.nextInt();
+                    arvore.delete(valorDeletar);
+                    System.out.println("-> Comando de deleção executado (se o nó existia, foi removido).");
+                    break;
+
+                case 3:
+                    System.out.print("Digite o valor para buscar: ");
+                    int valorBuscar = scanner.nextInt();
+                    if (arvore.contains(valorBuscar)) {
+                        System.out.println("-> O valor " + valorBuscar + " ESTÁ presente na árvore.");
+                    } else {
+                        System.out.println("-> O valor " + valorBuscar + " NÃO FOI ENCONTRADO na árvore.");
+                    }
+                    break;
+
+                case 4:
+                    System.out.println("-> Abrindo janela de visualização...");
+                    arvore.mostrarGUI();
+                    break;
+
+                case 5:
+                    System.out.println("-> Encerrando o programa. Até logo!");
+                    break;
+
+                default:
+                    System.out.println("-> Opção inválida. Escolha um número entre 1 e 5.");
+            }
         }
+
+        scanner.close();
     }
 }

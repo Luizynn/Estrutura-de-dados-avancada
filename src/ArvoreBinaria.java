@@ -1,4 +1,7 @@
 import javax.swing.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class ArvoreBinaria {
 
@@ -79,6 +82,44 @@ public class ArvoreBinaria {
             root.right = deleteNode(root.right, root.value);
         }
         return root;
+    }
+
+    public boolean salvarEmArquivo(String nomeArquivo) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(nomeArquivo))) {
+            salvarParentesesAninhados(root, writer);
+            return true;
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar o arquivo: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private void salvarPreOrdem(Node node, PrintWriter writer) {
+        if (node != null) {
+            writer.println(node.value);
+            salvarPreOrdem(node.left, writer);
+            salvarPreOrdem(node.right, writer);
+        }
+    }
+
+    private void salvarParentesesAninhados(Node node, PrintWriter writer) {
+        if (node == null) {
+            return;
+        }
+
+        writer.print("(" + node.value);
+
+        if (node.left != null) {
+            writer.print(" ");
+            salvarParentesesAninhados(node.left, writer);
+        }
+
+        if (node.right != null) {
+            writer.print(" ");
+            salvarParentesesAninhados(node.right, writer);
+        }
+
+        writer.print(")");
     }
 
     private int minValue(Node root) {

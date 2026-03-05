@@ -17,6 +17,10 @@ public class ArvoreBinaria {
         }
     }
 
+    public void clear(){
+        root = null;
+    }
+
     public boolean insert(int value){
         Node newNode = new Node(value);
         if(root == null) {

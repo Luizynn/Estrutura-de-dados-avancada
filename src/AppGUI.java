@@ -41,12 +41,14 @@ public class AppGUI extends JFrame {
         JButton btnRemover = new JButton("Remover");
         JButton btnMostrar = new JButton("Mostrar Árvore");
         JButton btnSalvar = new JButton("Salvar TXT");
+        JButton limparButton = new JButton("Limpar Árvore");
 
         buttonPanel.add(btnInsert);
         buttonPanel.add(btnBuscar);
         buttonPanel.add(btnRemover);
         buttonPanel.add(btnMostrar);
         buttonPanel.add(btnSalvar);
+        buttonPanel.add(limparButton);
 
         add(buttonPanel, BorderLayout.CENTER);
 
@@ -63,6 +65,11 @@ public class AppGUI extends JFrame {
             } catch (NumberFormatException ex) {
                 statusLabel.setText("Status: Por favor, digite um número válido.");
             }
+        });
+
+        limparButton.addActionListener(e -> {
+            arvore.clear();
+            repaint();
         });
 
         btnBuscar.addActionListener(e -> {

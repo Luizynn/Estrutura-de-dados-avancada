@@ -8,8 +8,6 @@ public class JanelaPrincipal extends JFrame {
 
         TreePanel painelArvore = new TreePanel(root);
 
-        // ADICIONE AQUI: O JScrollPane vai criar as barras de rolagem
-        // caso o TreePanel fique maior que a janela.
         JScrollPane scrollPane = new JScrollPane(painelArvore);
 
         add(scrollPane);

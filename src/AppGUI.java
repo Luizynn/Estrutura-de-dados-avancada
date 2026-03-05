@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 
-
 public class AppGUI extends JFrame {
 
     private ArvoreBinaria arvore;
@@ -11,15 +10,14 @@ public class AppGUI extends JFrame {
     public AppGUI() {
         arvore = new ArvoreBinaria();
 
-
         setTitle("Árvore Binária");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 200);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new GridLayout(2, 1));
+
+        JPanel topPanel = new JPanel(new GridLayout(2, 1));
 
         JPanel inputPanel = new JPanel();
         inputPanel.add(new JLabel("Valor:"));
@@ -33,72 +31,52 @@ public class AppGUI extends JFrame {
         topPanel.add(statusLabel);
         add(topPanel, BorderLayout.NORTH);
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout());
 
-        JButton btnInsert = new JButton("Inserir");
-        JButton btnBuscar = new JButton("Buscar");
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+
+        JButton btnInsert  = new JButton("Inserir");
+        JButton btnBuscar  = new JButton("Buscar");
         JButton btnRemover = new JButton("Remover");
         JButton btnMostrar = new JButton("Mostrar Árvore");
-        JButton btnSalvar = new JButton("Salvar TXT");
-        JButton limparButton = new JButton("Limpar Árvore");
+        JButton btnSalvar  = new JButton("Salvar TXT");
+        JButton btnLimpar  = new JButton("Limpar Árvore");
 
         buttonPanel.add(btnInsert);
         buttonPanel.add(btnBuscar);
         buttonPanel.add(btnRemover);
         buttonPanel.add(btnMostrar);
         buttonPanel.add(btnSalvar);
-        buttonPanel.add(limparButton);
+        buttonPanel.add(btnLimpar);
 
         add(buttonPanel, BorderLayout.CENTER);
 
         btnInsert.addActionListener(e -> {
             try {
-                int valor = Integer.parseInt(inputField.getText());
+                int valor = Integer.parseInt(inputField.getText().trim());
                 boolean inseriu = arvore.insert(valor);
-                if (inseriu) {
-                    statusLabel.setText(valor + " inserido com sucesso!");
-                } else {
-                    statusLabel.setText(valor + " já existe na árvore.");
-                }
+                statusLabel.setText(inseriu
+                        ? valor + " inserido com sucesso!"
+                        : valor + " já existe na árvore.");
                 inputField.setText("");
-            } catch (NumberFormatException ex) {
-                statusLabel.setText("Status: Por favor, digite um número válido.");
-            }
-        });
-
-        limparButton.addActionListener(e -> {
-            arvore.clear();
-            repaint();
-        });
-
-        btnBuscar.addActionListener(e -> {
-            try {
-                int valor = Integer.parseInt(inputField.getText());
-                boolean encontrou = arvore.contains(valor);
-                if (encontrou) {
-                    statusLabel.setText("O valor " + valor + " está na árvore.");
-                } else {
-                    statusLabel.setText("O valor " + valor + " NÃO foi encontrado.");
-                }
             } catch (NumberFormatException ex) {
                 statusLabel.setText("Por favor, digite um número válido.");
             }
         });
 
-        btnSalvar.addActionListener(e -> {
-            String nomeArquivo = "arvore_salva.txt";
-            boolean sucesso = arvore.salvarEmArquivo(nomeArquivo);
-            if (sucesso) {
-                statusLabel.setText("Árvore salva em " + nomeArquivo);
-            } else {
-                statusLabel.setText("Erro ao salvar o arquivo.");
+        btnBuscar.addActionListener(e -> {
+            try {
+                int valor = Integer.parseInt(inputField.getText().trim());
+                statusLabel.setText(arvore.contains(valor)
+                        ? "O valor " + valor + " está na árvore."
+                        : "O valor " + valor + " NÃO foi encontrado.");
+            } catch (NumberFormatException ex) {
+                statusLabel.setText("Por favor, digite um número válido.");
             }
         });
 
         btnRemover.addActionListener(e -> {
             try {
-                int valor = Integer.parseInt(inputField.getText());
+                int valor = Integer.parseInt(inputField.getText().trim());
                 if (arvore.contains(valor)) {
                     arvore.delete(valor);
                     statusLabel.setText(valor + " removido da árvore.");
@@ -111,15 +89,27 @@ public class AppGUI extends JFrame {
             }
         });
 
+
         btnMostrar.addActionListener(e -> {
             arvore.mostrarGUI();
             statusLabel.setText("Árvore exibida em nova janela.");
         });
+
+        btnSalvar.addActionListener(e -> {
+            String nomeArquivo = "arvore_salva.txt";
+            statusLabel.setText(arvore.salvarEmArquivo(nomeArquivo)
+                    ? "Árvore salva em " + nomeArquivo
+                    : "Erro ao salvar o arquivo.");
+        });
+
+        btnLimpar.addActionListener(e -> {
+            arvore.clear();
+            repaint();
+            statusLabel.setText("Árvore limpa.");
+        });
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new AppGUI().setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new AppGUI().setVisible(true));
     }
 }

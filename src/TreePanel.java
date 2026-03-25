@@ -1,7 +1,5 @@
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxStylesheet;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +13,7 @@ public class TreePanel extends JPanel {
     private static final int ESPACO_H      = 20;
     private static final int ESPACO_V      = 60;
 
-    // --- Estilos dos Nós ---
+
     private static final String STYLE_BASE =
             "shape=ellipse;"        +
                     "strokeColor=#2E86C1;"  +
@@ -25,9 +23,9 @@ public class TreePanel extends JPanel {
                     "verticalAlign=middle;" +
                     "align=center;";
 
-    private static final String STYLE_ROOT     = STYLE_BASE + "fillColor=#F1C40F;"; // Amarelo
-    private static final String STYLE_INTERNAL = STYLE_BASE + "fillColor=#AED6F1;"; // Azul
-    private static final String STYLE_LEAF     = STYLE_BASE + "fillColor=#ABEBC6;"; // Verde
+    private static final String STYLE_ROOT     = STYLE_BASE + "fillColor=#F1C40F;";
+    private static final String STYLE_INTERNAL = STYLE_BASE + "fillColor=#AED6F1;";
+    private static final String STYLE_LEAF     = STYLE_BASE + "fillColor=#ABEBC6;";
 
     private static final String STYLE_ARESTA =
             "strokeColor=#555555;"  +
@@ -63,13 +61,10 @@ public class TreePanel extends JPanel {
                 int[] xCounter = {0};
                 calcularPosicoes(rootNode, xCounter);
 
-                // Mapa central para armazenar a relação entre Node e o vértice do JGraphX
                 Map<ArvoreBinaria.Node, Object> mapaVertices = new HashMap<>();
 
-                // Primeiro insere todos os vértices (bolinhas)
                 inserirVertices(graph, parent, rootNode, rootNode, 0, mapaVertices);
 
-                // Depois insere as arestas (linhas conectando as bolinhas)
                 inserirArestas(graph, parent, rootNode, mapaVertices);
             }
         } finally {
@@ -80,7 +75,6 @@ public class TreePanel extends JPanel {
         graphComponent.setBackground(Color.WHITE);
         graphComponent.getViewport().setBackground(Color.WHITE);
 
-        // Painel inferior para Legenda + Zoom
         JPanel southPanel = new JPanel();
         southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
         southPanel.add(criarLegenda());

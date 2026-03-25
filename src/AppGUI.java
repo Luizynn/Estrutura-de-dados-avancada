@@ -13,7 +13,7 @@ public class AppGUI extends JFrame {
 
         setTitle("Gerenciador de Árvore Binária");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(750, 550); // Ajustado para caber tudo confortavelmente
+        setSize(750, 600);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
@@ -46,15 +46,29 @@ public class AppGUI extends JFrame {
 
         add(topPanel, BorderLayout.NORTH);
 
+        JPanel centroContainer = new JPanel(new GridLayout(2, 1, 5, 5));
+        centroContainer.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         JButton btnMostrar = new JButton("Mostrar Árvore (Gráfico)");
-        JButton btnSalvar  = new JButton("Salvar em TXT"); // Botão restaurado
+        JButton btnSalvar  = new JButton("Salvar em TXT");
         JButton btnLimpar  = new JButton("Limpar Árvore");
-
         actionPanel.add(btnMostrar);
         actionPanel.add(btnSalvar);
         actionPanel.add(btnLimpar);
-        add(actionPanel, BorderLayout.CENTER);
+
+        JPanel painelPercursos = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        painelPercursos.setBorder(BorderFactory.createTitledBorder("Percursos"));
+        JButton btnPre = new JButton("Pré-ordem");
+        JButton btnEm  = new JButton("Em-ordem");
+        JButton btnPos = new JButton("Pós-ordem");
+        painelPercursos.add(btnPre);
+        painelPercursos.add(btnEm);
+        painelPercursos.add(btnPos);
+
+        centroContainer.add(actionPanel);
+        centroContainer.add(painelPercursos);
+        add(centroContainer, BorderLayout.CENTER);
 
         statusLabel = new JLabel("Sistema pronto", SwingConstants.CENTER);
         statusLabel.setForeground(new Color(30, 136, 229));
@@ -125,6 +139,22 @@ public class AppGUI extends JFrame {
             arvore.clear();
             statusLabel.setText("Árvore limpa.");
         });
+
+        btnPre.addActionListener(e -> exibirResultadoPercurso("Pré-ordem", arvore.getPreOrdem()));
+        btnEm.addActionListener(e -> exibirResultadoPercurso("Em-ordem", arvore.getEmOrdem()));
+        btnPos.addActionListener(e -> exibirResultadoPercurso("Pós-ordem", arvore.getPosOrdem()));
+    }
+
+    private void exibirResultadoPercurso(String tipo, String resultado) {
+        if (resultado == null || resultado.isEmpty()) {
+            statusLabel.setText("Árvore está vazia.");
+            return;
+        }
+        JOptionPane.showMessageDialog(this,
+                "Percurso " + tipo + ":\n" + resultado,
+                "Resultado do Percurso",
+                JOptionPane.INFORMATION_MESSAGE);
+        statusLabel.setText("Percurso " + tipo + " realizado.");
     }
 
     public static void main(String[] args) {

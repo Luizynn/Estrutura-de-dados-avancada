@@ -3,7 +3,7 @@ import javax.swing.*;
 public class JanelaPrincipal extends JFrame {
     public JanelaPrincipal(ArvoreBinaria.Node root) {
         setTitle("Visualizador de Árvore Binária");
-        setSize(800, 600); // Tamanho da JANELA física
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         TreePanel painelArvore = new TreePanel(root);

@@ -1,18 +1,10 @@
-import com.mxgraph.layout.mxIGraphLayout;
-import com.mxgraph.layout.mxCompactTreeLayout;
-import com.mxgraph.model.mxCell;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
-import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxStylesheet;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
+
 
 public class ArvoreBinaria {
 
@@ -184,5 +176,45 @@ public class ArvoreBinaria {
             }
         }
         return -1;
+    }
+
+
+    public String getPreOrdem() {
+        StringBuilder sb = new StringBuilder();
+        percorrerPreOrdem(root, sb);
+        return sb.toString().trim();
+    }
+
+    private void percorrerPreOrdem(Node node, StringBuilder sb) {
+        if (node == null) return;
+        sb.append(node.value).append(" ");
+        percorrerPreOrdem(node.left, sb);
+        percorrerPreOrdem(node.right, sb);
+    }
+
+    public String getEmOrdem() {
+        StringBuilder sb = new StringBuilder();
+        percorrerEmOrdem(root, sb);
+        return sb.toString().trim();
+    }
+
+    private void percorrerEmOrdem(Node node, StringBuilder sb) {
+        if (node == null) return;
+        percorrerEmOrdem(node.left, sb);
+        sb.append(node.value).append(" ");
+        percorrerEmOrdem(node.right, sb);
+    }
+
+    public String getPosOrdem() {
+        StringBuilder sb = new StringBuilder();
+        percorrerPosOrdem(root, sb);
+        return sb.toString().trim();
+    }
+
+    private void percorrerPosOrdem(Node node, StringBuilder sb) {
+        if (node == null) return;
+        percorrerPosOrdem(node.left, sb);
+        percorrerPosOrdem(node.right, sb);
+        sb.append(node.value).append(" ");
     }
 }

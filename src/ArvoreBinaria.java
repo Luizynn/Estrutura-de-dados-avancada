@@ -106,9 +106,6 @@ public class ArvoreBinaria {
         writer.print(")");
     }
 
-    // ══════════════════════════════════════════════════════
-    //  mostrarGUI — renderização via JGraphX
-    // ══════════════════════════════════════════════════════
     public void mostrarGUI() {
         JFrame frame = new JFrame("Visualização da Árvore Binária");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -121,5 +118,71 @@ public class ArvoreBinaria {
         frame.add(treePanel, BorderLayout.CENTER);
 
         frame.setVisible(true);
+    }
+
+
+    public void buildFromParentheses(String input) throws Exception {
+        if (input == null || input.trim().isEmpty()) {
+            this.root = null;
+            return;
+        }
+        this.root = parseParentheses(input.trim());
+    }
+
+    private Node parseParentheses(String s) throws Exception {
+        s = s.trim();
+        if (s.isEmpty()) return null;
+
+        if (s.startsWith("(")) {
+            s = s.substring(1, s.length() - 1).trim();
+        }
+
+        if (s.isEmpty()) return null;
+
+        int firstSpace = s.indexOf(' ');
+        int firstParen = s.indexOf('(');
+        int splitIdx = -1;
+
+        if (firstSpace != -1 && firstParen != -1) splitIdx = Math.min(firstSpace, firstParen);
+        else if (firstSpace != -1) splitIdx = firstSpace;
+        else if (firstParen != -1) splitIdx = firstParen;
+
+        int rootVal;
+        String rest = "";
+
+        if (splitIdx == -1) {
+            rootVal = Integer.parseInt(s);
+        } else {
+            rootVal = Integer.parseInt(s.substring(0, splitIdx).trim());
+            rest = s.substring(splitIdx).trim();
+        }
+
+        Node node = new Node(rootVal);
+
+        if (!rest.isEmpty()) {
+            int leftEnd = findMatchingParen(rest, 0);
+            if (leftEnd != -1) {
+                String leftSub = rest.substring(0, leftEnd + 1);
+                node.left = parseParentheses(leftSub);
+
+                String rightPart = rest.substring(leftEnd + 1).trim();
+                if (!rightPart.isEmpty()) {
+                    node.right = parseParentheses(rightPart);
+                }
+            }
+        }
+        return node;
+    }
+
+    private int findMatchingParen(String s, int start) {
+        int count = 0;
+        for (int i = start; i < s.length(); i++) {
+            if (s.charAt(i) == '(') count++;
+            else if (s.charAt(i) == ')') {
+                count--;
+                if (count == 0) return i;
+            }
+        }
+        return -1;
     }
 }

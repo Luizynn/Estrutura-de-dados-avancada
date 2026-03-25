@@ -1,10 +1,10 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArvoreBinaria {
 
@@ -20,25 +20,17 @@ public class ArvoreBinaria {
         }
     }
 
-    public Node getRoot() {
-        return root;
-    }
-
-    public void clear() {
-        root = null;
-    }
+    public Node getRoot() { return root; }
+    public void clear() { root = null; }
 
     public boolean insert(int value) {
         Node newNode = new Node(value);
-        if (root == null) {
-            root = newNode;
-            return true;
-        }
+        if (root == null) { root = newNode; return true; }
         Node temp = root;
         while (true) {
             if (newNode.value == temp.value) return false;
             if (newNode.value < temp.value) {
-                if (temp.left == null)  { temp.left  = newNode; return true; }
+                if (temp.left == null) { temp.left = newNode; return true; }
                 temp = temp.left;
             } else {
                 if (temp.right == null) { temp.right = newNode; return true; }
@@ -50,23 +42,21 @@ public class ArvoreBinaria {
     public boolean contains(int value) {
         Node temp = root;
         while (temp != null) {
-            if      (value < temp.value) temp = temp.left;
+            if (value < temp.value) temp = temp.left;
             else if (value > temp.value) temp = temp.right;
-            else                         return true;
+            else return true;
         }
         return false;
     }
 
-    public void delete(int value) {
-        root = deleteNode(root, value);
-    }
+    public void delete(int value) { root = deleteNode(root, value); }
 
     private Node deleteNode(Node node, int value) {
         if (node == null) return null;
-        if      (value < node.value) node.left  = deleteNode(node.left,  value);
+        if (value < node.value) node.left = deleteNode(node.left, value);
         else if (value > node.value) node.right = deleteNode(node.right, value);
         else {
-            if (node.left  == null) return node.right;
+            if (node.left == null) return node.right;
             if (node.right == null) return node.left;
             node.value = minValue(node.right);
             node.right = deleteNode(node.right, node.value);
@@ -80,87 +70,86 @@ public class ArvoreBinaria {
         return min;
     }
 
+    public List<String> getTodosCaminhos() {
+        List<String> caminhos = new ArrayList<>();
+        encontrarCaminhos(root, "", caminhos);
+        return caminhos;
+    }
+
+    private void encontrarCaminhos(Node node, String caminhoAtual, List<String> caminhos) {
+        if (node == null) return;
+        caminhoAtual += (caminhoAtual.isEmpty() ? "" : " -> ") + node.value;
+        if (node.left == null && node.right == null) {
+            caminhos.add(caminhoAtual);
+        } else {
+            encontrarCaminhos(node.left, caminhoAtual, caminhos);
+            encontrarCaminhos(node.right, caminhoAtual, caminhos);
+        }
+    }
+
+    public String getCaminhoPara(int valor) {
+        List<Integer> caminho = new ArrayList<>();
+        if (buscarCaminho(root, valor, caminho)) {
+            return caminho.toString().replace("[", "").replace("]", "").replace(", ", " -> ");
+        }
+        return null;
+    }
+
+    private boolean buscarCaminho(Node node, int valor, List<Integer> caminho) {
+        if (node == null) return false;
+        caminho.add(node.value);
+        if (node.value == valor) return true;
+        if (buscarCaminho(node.left, valor, caminho) || buscarCaminho(node.right, valor, caminho)) return true;
+        caminho.remove(caminho.size() - 1);
+        return false;
+    }
+
     public boolean salvarEmArquivo(String nomeArquivo) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(nomeArquivo))) {
             salvarParentesesAninhados(root, writer);
             return true;
-        } catch (IOException e) {
-            System.err.println("Erro ao salvar o arquivo: " + e.getMessage());
-            return false;
-        }
+        } catch (IOException e) { return false; }
     }
 
     private void salvarParentesesAninhados(Node node, PrintWriter writer) {
         if (node == null) return;
         writer.print("(" + node.value);
-        if (node.left  != null) { writer.print(" "); salvarParentesesAninhados(node.left,  writer); }
+        if (node.left != null) { writer.print(" "); salvarParentesesAninhados(node.left, writer); }
         if (node.right != null) { writer.print(" "); salvarParentesesAninhados(node.right, writer); }
         writer.print(")");
     }
 
-    public void mostrarGUI() {
-        JFrame frame = new JFrame("Visualização da Árvore Binária");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(900, 650);
-        frame.setLocationRelativeTo(null);
-        frame.setLayout(new BorderLayout());
-
-        // Painel JGraphX
-        TreePanel treePanel = new TreePanel(root);
-        frame.add(treePanel, BorderLayout.CENTER);
-
-        frame.setVisible(true);
-    }
-
-
     public void buildFromParentheses(String input) throws Exception {
-        if (input == null || input.trim().isEmpty()) {
-            this.root = null;
-            return;
-        }
+        if (input == null || input.trim().isEmpty()) { this.root = null; return; }
         this.root = parseParentheses(input.trim());
     }
 
     private Node parseParentheses(String s) throws Exception {
         s = s.trim();
         if (s.isEmpty()) return null;
-
-        if (s.startsWith("(")) {
-            s = s.substring(1, s.length() - 1).trim();
-        }
-
+        if (s.startsWith("(")) s = s.substring(1, s.length() - 1).trim();
         if (s.isEmpty()) return null;
-
         int firstSpace = s.indexOf(' ');
         int firstParen = s.indexOf('(');
         int splitIdx = -1;
-
         if (firstSpace != -1 && firstParen != -1) splitIdx = Math.min(firstSpace, firstParen);
         else if (firstSpace != -1) splitIdx = firstSpace;
         else if (firstParen != -1) splitIdx = firstParen;
 
         int rootVal;
         String rest = "";
-
-        if (splitIdx == -1) {
-            rootVal = Integer.parseInt(s);
-        } else {
+        if (splitIdx == -1) { rootVal = Integer.parseInt(s); }
+        else {
             rootVal = Integer.parseInt(s.substring(0, splitIdx).trim());
             rest = s.substring(splitIdx).trim();
         }
-
         Node node = new Node(rootVal);
-
         if (!rest.isEmpty()) {
             int leftEnd = findMatchingParen(rest, 0);
             if (leftEnd != -1) {
-                String leftSub = rest.substring(0, leftEnd + 1);
-                node.left = parseParentheses(leftSub);
-
+                node.left = parseParentheses(rest.substring(0, leftEnd + 1));
                 String rightPart = rest.substring(leftEnd + 1).trim();
-                if (!rightPart.isEmpty()) {
-                    node.right = parseParentheses(rightPart);
-                }
+                if (!rightPart.isEmpty()) node.right = parseParentheses(rightPart);
             }
         }
         return node;
@@ -170,51 +159,25 @@ public class ArvoreBinaria {
         int count = 0;
         for (int i = start; i < s.length(); i++) {
             if (s.charAt(i) == '(') count++;
-            else if (s.charAt(i) == ')') {
-                count--;
-                if (count == 0) return i;
-            }
+            else if (s.charAt(i) == ')') { count--; if (count == 0) return i; }
         }
         return -1;
     }
 
+    public String getPreOrdem() { StringBuilder sb = new StringBuilder(); percorrerPreOrdem(root, sb); return sb.toString().trim(); }
+    private void percorrerPreOrdem(Node node, StringBuilder sb) { if (node == null) return; sb.append(node.value).append(" "); percorrerPreOrdem(node.left, sb); percorrerPreOrdem(node.right, sb); }
 
-    public String getPreOrdem() {
-        StringBuilder sb = new StringBuilder();
-        percorrerPreOrdem(root, sb);
-        return sb.toString().trim();
-    }
+    public String getEmOrdem() { StringBuilder sb = new StringBuilder(); percorrerEmOrdem(root, sb); return sb.toString().trim(); }
+    private void percorrerEmOrdem(Node node, StringBuilder sb) { if (node == null) return; percorrerEmOrdem(node.left, sb); sb.append(node.value).append(" "); percorrerEmOrdem(node.right, sb); }
 
-    private void percorrerPreOrdem(Node node, StringBuilder sb) {
-        if (node == null) return;
-        sb.append(node.value).append(" ");
-        percorrerPreOrdem(node.left, sb);
-        percorrerPreOrdem(node.right, sb);
-    }
+    public String getPosOrdem() { StringBuilder sb = new StringBuilder(); percorrerPosOrdem(root, sb); return sb.toString().trim(); }
+    private void percorrerPosOrdem(Node node, StringBuilder sb) { if (node == null) return; percorrerPosOrdem(node.left, sb); percorrerPosOrdem(node.right, sb); sb.append(node.value).append(" "); }
 
-    public String getEmOrdem() {
-        StringBuilder sb = new StringBuilder();
-        percorrerEmOrdem(root, sb);
-        return sb.toString().trim();
-    }
-
-    private void percorrerEmOrdem(Node node, StringBuilder sb) {
-        if (node == null) return;
-        percorrerEmOrdem(node.left, sb);
-        sb.append(node.value).append(" ");
-        percorrerEmOrdem(node.right, sb);
-    }
-
-    public String getPosOrdem() {
-        StringBuilder sb = new StringBuilder();
-        percorrerPosOrdem(root, sb);
-        return sb.toString().trim();
-    }
-
-    private void percorrerPosOrdem(Node node, StringBuilder sb) {
-        if (node == null) return;
-        percorrerPosOrdem(node.left, sb);
-        percorrerPosOrdem(node.right, sb);
-        sb.append(node.value).append(" ");
+    public void mostrarGUI() {
+        JFrame frame = new JFrame("Visualização da Árvore Binária");
+        frame.setSize(900, 650);
+        frame.setLocationRelativeTo(null);
+        frame.add(new TreePanel(root), BorderLayout.CENTER);
+        frame.setVisible(true);
     }
 }

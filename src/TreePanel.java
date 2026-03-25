@@ -1,5 +1,7 @@
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxStylesheet;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +14,6 @@ public class TreePanel extends JPanel {
     private static final int NO_ALTURA     = 36;
     private static final int ESPACO_H      = 20;
     private static final int ESPACO_V      = 60;
-
 
     private static final String STYLE_BASE =
             "shape=ellipse;"        +
@@ -60,11 +61,8 @@ public class TreePanel extends JPanel {
                 coordenadas.clear();
                 int[] xCounter = {0};
                 calcularPosicoes(rootNode, xCounter);
-
                 Map<ArvoreBinaria.Node, Object> mapaVertices = new HashMap<>();
-
                 inserirVertices(graph, parent, rootNode, rootNode, 0, mapaVertices);
-
                 inserirArestas(graph, parent, rootNode, mapaVertices);
             }
         } finally {
@@ -115,7 +113,6 @@ public class TreePanel extends JPanel {
 
     private void inserirArestas(mxGraph graph, Object parent, ArvoreBinaria.Node node, Map<ArvoreBinaria.Node, Object> mapaVertices) {
         if (node == null) return;
-
         if (node.left != null) {
             graph.insertEdge(parent, null, "", mapaVertices.get(node), mapaVertices.get(node.left), STYLE_ARESTA);
             inserirArestas(graph, parent, node.left, mapaVertices);

@@ -164,6 +164,64 @@ public class ArvoreBinaria {
         return -1;
     }
 
+    // =========================================================
+    // MÉTRICAS: ALTURA, PROFUNDIDADE E NÍVEL
+    // =========================================================
+
+    // Método auxiliar para buscar um nó específico
+    private Node buscarNo(Node node, int valor) {
+        if (node == null || node.value == valor) return node;
+        if (valor < node.value) return buscarNo(node.left, valor);
+        return buscarNo(node.right, valor);
+    }
+
+    // --- ALTURA ---
+    // A altura de um nó é o número de arestas no caminho mais longo do nó até uma folha.
+    public int getAlturaNo(int valor) {
+        Node no = buscarNo(root, valor);
+        return (no != null) ? calcularAltura(no) : -1;
+    }
+
+    public int getAlturaArvore() {
+        return calcularAltura(root);
+    }
+
+    private int calcularAltura(Node node) {
+        if (node == null) return -1; // Retorna -1 para que folhas tenham altura 0
+        int alturaEsq = calcularAltura(node.left);
+        int alturaDir = calcularAltura(node.right);
+        return Math.max(alturaEsq, alturaDir) + 1;
+    }
+
+    // --- PROFUNDIDADE ---
+    // A profundidade de um nó é o número de arestas da raiz até o nó.
+    public int getProfundidadeNo(int valor) {
+        return calcularProfundidade(root, valor, 0);
+    }
+
+    public int getProfundidadeArvore() {
+        return getAlturaArvore(); // A profundidade da árvore é igual à sua altura
+    }
+
+    private int calcularProfundidade(Node node, int valor, int profAtual) {
+        if (node == null) return -1;
+        if (node.value == valor) return profAtual;
+        if (valor < node.value) return calcularProfundidade(node.left, valor, profAtual + 1);
+        return calcularProfundidade(node.right, valor, profAtual + 1);
+    }
+
+    // --- NÍVEL ---
+    // O nível de um nó é sua profundidade + 1 (Raiz = Nível 1).
+    public int getNivelNo(int valor) {
+        int profundidade = getProfundidadeNo(valor);
+        return (profundidade != -1) ? profundidade + 1 : -1;
+    }
+
+    public int getNivelArvore() {
+        int altura = getAlturaArvore();
+        return (altura != -1) ? altura + 1 : 0; // Se vazia = 0, senão altura + 1
+    }
+
     public String getPreOrdem() { StringBuilder sb = new StringBuilder(); percorrerPreOrdem(root, sb); return sb.toString().trim(); }
     private void percorrerPreOrdem(Node node, StringBuilder sb) { if (node == null) return; sb.append(node.value).append(" "); percorrerPreOrdem(node.left, sb); percorrerPreOrdem(node.right, sb); }
 

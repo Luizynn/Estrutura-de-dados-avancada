@@ -12,7 +12,7 @@ public class AppGUI extends JFrame {
     public AppGUI() {
         arvore = new ArvoreBinaria();
 
-        setTitle("Gerenciador de Árvore Binária - 4º Período CC");
+        setTitle("Gerenciador de Árvore Binária");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(780, 680);
         setLocationRelativeTo(null);
@@ -43,8 +43,8 @@ public class AppGUI extends JFrame {
         topPanel.add(stringInputPanel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
-        JPanel centroContainer = new JPanel(new GridLayout(2, 1, 5, 5));
-        centroContainer.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+
+        JPanel centroContainer = new JPanel(new GridLayout(3, 1, 5, 5));        centroContainer.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         JButton btnMostrar = new JButton("Visualizar Gráfico");
@@ -68,6 +68,19 @@ public class AppGUI extends JFrame {
         painelPercursos.add(btnTodosCaminhos);
         painelPercursos.add(btnCaminhoAte);
 
+        JPanel painelMetricas = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        painelMetricas.setBorder(BorderFactory.createTitledBorder("Métricas da Árvore e dos Nós"));
+        JButton btnMetricasArvore = new JButton("Métricas da Árvore");
+        JButton btnMetricasNo = new JButton("Métricas de um Nó (Use o Campo 'Valor')");
+
+        painelMetricas.add(btnMetricasArvore);
+        painelMetricas.add(btnMetricasNo);
+
+        centroContainer.add(actionPanel);
+        centroContainer.add(painelPercursos);
+        centroContainer.add(painelMetricas);
+        add(centroContainer, BorderLayout.CENTER);
+
         centroContainer.add(actionPanel);
         centroContainer.add(painelPercursos);
         add(centroContainer, BorderLayout.CENTER);
@@ -76,6 +89,31 @@ public class AppGUI extends JFrame {
         statusLabel.setForeground(new Color(30, 136, 229));
         statusLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
         add(statusLabel, BorderLayout.SOUTH);
+
+        btnMetricasArvore.addActionListener(e -> {
+            if (arvore.getRoot() == null) {
+                statusLabel.setText("A árvore está vazia!");
+                return;
+            }
+            String mensagem = String.format("Métricas da Árvore:\n- Altura: %d\n- Profundidade: %d\n- Nível Máximo: %d",
+                    arvore.getAlturaArvore(), arvore.getProfundidadeArvore(), arvore.getNivelArvore());
+            JOptionPane.showMessageDialog(this, mensagem, "Métricas da Árvore", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        btnMetricasNo.addActionListener(e -> {
+            try {
+                int valor = Integer.parseInt(inputField.getText().trim());
+                if (!arvore.contains(valor)) {
+                    statusLabel.setText("Valor não existe na árvore.");
+                    return;
+                }
+                String mensagem = String.format("Métricas do Nó [%d]:\n- Altura: %d\n- Profundidade: %d\n- Nível: %d",
+                        valor, arvore.getAlturaNo(valor), arvore.getProfundidadeNo(valor), arvore.getNivelNo(valor));
+                JOptionPane.showMessageDialog(this, mensagem, "Métricas do Nó", JOptionPane.INFORMATION_MESSAGE);
+            } catch (NumberFormatException ex) {
+                statusLabel.setText("Por favor, digite um número no campo 'Valor' primeiro.");
+            }
+        });
 
         btnInsert.addActionListener(e -> {
             try {

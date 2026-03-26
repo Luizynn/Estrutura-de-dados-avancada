@@ -168,15 +168,12 @@ public class ArvoreBinaria {
     // MÉTRICAS: ALTURA, PROFUNDIDADE E NÍVEL
     // =========================================================
 
-    // Método auxiliar para buscar um nó específico
     private Node buscarNo(Node node, int valor) {
         if (node == null || node.value == valor) return node;
         if (valor < node.value) return buscarNo(node.left, valor);
         return buscarNo(node.right, valor);
     }
 
-    // --- ALTURA ---
-    // A altura de um nó é o número de arestas no caminho mais longo do nó até uma folha.
     public int getAlturaNo(int valor) {
         Node no = buscarNo(root, valor);
         return (no != null) ? calcularAltura(no) : -1;
@@ -187,20 +184,18 @@ public class ArvoreBinaria {
     }
 
     private int calcularAltura(Node node) {
-        if (node == null) return -1; // Retorna -1 para que folhas tenham altura 0
+        if (node == null) return -1;
         int alturaEsq = calcularAltura(node.left);
         int alturaDir = calcularAltura(node.right);
         return Math.max(alturaEsq, alturaDir) + 1;
     }
 
-    // --- PROFUNDIDADE ---
-    // A profundidade de um nó é o número de arestas da raiz até o nó.
     public int getProfundidadeNo(int valor) {
         return calcularProfundidade(root, valor, 0);
     }
 
     public int getProfundidadeArvore() {
-        return getAlturaArvore(); // A profundidade da árvore é igual à sua altura
+        return getAlturaArvore();
     }
 
     private int calcularProfundidade(Node node, int valor, int profAtual) {
@@ -210,17 +205,71 @@ public class ArvoreBinaria {
         return calcularProfundidade(node.right, valor, profAtual + 1);
     }
 
-    // --- NÍVEL ---
-    // O nível de um nó é sua profundidade + 1 (Raiz = Nível 1).
+    // Raiz no nível 0 (Nível = Profundidade)
     public int getNivelNo(int valor) {
-        int profundidade = getProfundidadeNo(valor);
-        return (profundidade != -1) ? profundidade + 1 : -1;
+        return getProfundidadeNo(valor);
     }
 
     public int getNivelArvore() {
-        int altura = getAlturaArvore();
-        return (altura != -1) ? altura + 1 : 0; // Se vazia = 0, senão altura + 1
+        return getAlturaArvore();
     }
+
+    // =========================================================
+    // CLASSIFICAÇÃO DA ÁRVORE (COMPLETA, CHEIA OU LINEAR)
+    // =========================================================
+
+    private int contarNos(Node node) {
+        if (node == null) return 0;
+        return 1 + contarNos(node.left) + contarNos(node.right);
+    }
+
+    // 1. CHEIA: Todos os níveis estão completamente preenchidos.
+    // O total de nós é exatamente 2^(altura+1) - 1.
+    private boolean isCheia() {
+        if (root == null) return true;
+        int altura = getAlturaArvore();
+        int totalNosEsperados = (int) Math.pow(2, altura + 1) - 1;
+        return contarNos(root) == totalNosEsperados;
+    }
+
+    // 2. COMPLETA: Níveis preenchidos da esquerda para a direita sem buracos.
+    private boolean isCompleta(Node node, int index, int totalNos) {
+        if (node == null) return true;
+        if (index >= totalNos) return false;
+        return isCompleta(node.left, 2 * index + 1, totalNos) &&
+                isCompleta(node.right, 2 * index + 2, totalNos);
+    }
+
+    // 3. LINEAR: Cada nó possui no máximo 1 filho.
+    private boolean isLinear(Node node) {
+        if (node == null) return true;
+        if (node.left != null && node.right != null) return false; // Tem 2 filhos, não é linear
+        if (node.left != null) return isLinear(node.left);
+        if (node.right != null) return isLinear(node.right);
+        return true;
+    }
+
+    // Método principal chamado pela interface
+    public String classificarArvore() {
+        if (root == null) return "Árvore Vazia";
+
+        int totalNos = contarNos(root);
+
+        // Verifica cada tipo em ordem de prioridade e retorna imediatamente
+        if (isLinear(root)) {
+            return "Degenerativa";
+        } else if (isCheia()) {
+            return "Cheia";
+        } else if (isCompleta(root, 0, totalNos)) {
+            return "Completa";
+        }
+
+        return "Comum";
+    }
+
+    // =========================================================
+    // PERCURSOS
+    // =========================================================
 
     public String getPreOrdem() { StringBuilder sb = new StringBuilder(); percorrerPreOrdem(root, sb); return sb.toString().trim(); }
     private void percorrerPreOrdem(Node node, StringBuilder sb) { if (node == null) return; sb.append(node.value).append(" "); percorrerPreOrdem(node.left, sb); percorrerPreOrdem(node.right, sb); }

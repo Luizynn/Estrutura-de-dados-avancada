@@ -43,8 +43,8 @@ public class AppGUI extends JFrame {
         topPanel.add(stringInputPanel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
-
-        JPanel centroContainer = new JPanel(new GridLayout(3, 1, 5, 5));        centroContainer.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        JPanel centroContainer = new JPanel(new GridLayout(3, 1, 5, 5));
+        centroContainer.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         JButton btnMostrar = new JButton("Visualizar Gráfico");
@@ -72,17 +72,15 @@ public class AppGUI extends JFrame {
         painelMetricas.setBorder(BorderFactory.createTitledBorder("Métricas da Árvore e dos Nós"));
         JButton btnMetricasArvore = new JButton("Métricas da Árvore");
         JButton btnMetricasNo = new JButton("Métricas de um Nó (Use o Campo 'Valor')");
+        JButton btnClassificar = new JButton("Classificar Árvore"); // <-- NOVO BOTÃO AQUI
 
         painelMetricas.add(btnMetricasArvore);
         painelMetricas.add(btnMetricasNo);
+        painelMetricas.add(btnClassificar);
 
         centroContainer.add(actionPanel);
         centroContainer.add(painelPercursos);
         centroContainer.add(painelMetricas);
-        add(centroContainer, BorderLayout.CENTER);
-
-        centroContainer.add(actionPanel);
-        centroContainer.add(painelPercursos);
         add(centroContainer, BorderLayout.CENTER);
 
         statusLabel = new JLabel("Aguardando ação...", SwingConstants.CENTER);
@@ -113,6 +111,17 @@ public class AppGUI extends JFrame {
             } catch (NumberFormatException ex) {
                 statusLabel.setText("Por favor, digite um número no campo 'Valor' primeiro.");
             }
+        });
+
+        // <-- LÓGICA DO NOVO BOTÃO DE CLASSIFICAÇÃO -->
+        btnClassificar.addActionListener(e -> {
+            if (arvore.getRoot() == null) {
+                statusLabel.setText("A árvore está vazia!");
+                return;
+            }
+            String classificacao = arvore.classificarArvore();
+            String mensagem = "Classificação da Árvore Atual:\n\n" + classificacao;
+            JOptionPane.showMessageDialog(this, mensagem, "Classificação", JOptionPane.INFORMATION_MESSAGE);
         });
 
         btnInsert.addActionListener(e -> {

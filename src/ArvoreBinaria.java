@@ -164,9 +164,7 @@ public class ArvoreBinaria {
         return -1;
     }
 
-    // =========================================================
-    // MÉTRICAS: ALTURA, PROFUNDIDADE E NÍVEL
-    // =========================================================
+
 
     private Node buscarNo(Node node, int valor) {
         if (node == null || node.value == valor) return node;
@@ -205,7 +203,6 @@ public class ArvoreBinaria {
         return calcularProfundidade(node.right, valor, profAtual + 1);
     }
 
-    // Raiz no nível 0 (Nível = Profundidade)
     public int getNivelNo(int valor) {
         return getProfundidadeNo(valor);
     }
@@ -214,17 +211,13 @@ public class ArvoreBinaria {
         return getAlturaArvore();
     }
 
-    // =========================================================
-    // CLASSIFICAÇÃO DA ÁRVORE (COMPLETA, CHEIA OU LINEAR)
-    // =========================================================
 
     private int contarNos(Node node) {
         if (node == null) return 0;
         return 1 + contarNos(node.left) + contarNos(node.right);
     }
 
-    // 1. CHEIA: Todos os níveis estão completamente preenchidos.
-    // O total de nós é exatamente 2^(altura+1) - 1.
+
     private boolean isCheia() {
         if (root == null) return true;
         int altura = getAlturaArvore();
@@ -249,13 +242,11 @@ public class ArvoreBinaria {
         return true;
     }
 
-    // Método principal chamado pela interface
     public String classificarArvore() {
         if (root == null) return "Árvore Vazia";
 
         int totalNos = contarNos(root);
 
-        // Verifica cada tipo em ordem de prioridade e retorna imediatamente
         if (isLinear(root)) {
             return "Degenerativa";
         } else if (isCheia()) {
@@ -264,12 +255,8 @@ public class ArvoreBinaria {
             return "Completa";
         }
 
-        return "Comum";
+        return "Incompleta";
     }
-
-    // =========================================================
-    // PERCURSOS
-    // =========================================================
 
     public String getPreOrdem() { StringBuilder sb = new StringBuilder(); percorrerPreOrdem(root, sb); return sb.toString().trim(); }
     private void percorrerPreOrdem(Node node, StringBuilder sb) { if (node == null) return; sb.append(node.value).append(" "); percorrerPreOrdem(node.left, sb); percorrerPreOrdem(node.right, sb); }

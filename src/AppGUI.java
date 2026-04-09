@@ -50,7 +50,10 @@ public class AppGUI extends JFrame {
         JButton btnMostrar = new JButton("Visualizar Gráfico");
         JButton btnSalvar  = new JButton("Salvar em TXT");
         JButton btnLimpar  = new JButton("Limpar Árvore");
+        JButton btnInverter = new JButton("Inverter Árvore");
+
         actionPanel.add(btnMostrar);
+        actionPanel.add(btnInverter);
         actionPanel.add(btnSalvar);
         actionPanel.add(btnLimpar);
 
@@ -72,7 +75,7 @@ public class AppGUI extends JFrame {
         painelMetricas.setBorder(BorderFactory.createTitledBorder("Métricas da Árvore e dos Nós"));
         JButton btnMetricasArvore = new JButton("Métricas da Árvore");
         JButton btnMetricasNo = new JButton("Métricas de um Nó (Use o Campo 'Valor')");
-        JButton btnClassificar = new JButton("Classificar Árvore"); // <-- NOVO BOTÃO AQUI
+        JButton btnClassificar = new JButton("Classificar Árvore");
 
         painelMetricas.add(btnMetricasArvore);
         painelMetricas.add(btnMetricasNo);
@@ -113,7 +116,6 @@ public class AppGUI extends JFrame {
             }
         });
 
-        // <-- LÓGICA DO NOVO BOTÃO DE CLASSIFICAÇÃO -->
         btnClassificar.addActionListener(e -> {
             if (arvore.getRoot() == null) {
                 statusLabel.setText("A árvore está vazia!");
@@ -159,6 +161,16 @@ public class AppGUI extends JFrame {
         });
 
         btnMostrar.addActionListener(e -> arvore.mostrarGUI());
+
+        btnInverter.addActionListener(e -> {
+            if (arvore.getRoot() == null) {
+                statusLabel.setText("A árvore está vazia!");
+            } else {
+                arvore.inverter();
+                arvore.mostrarGUI();
+                statusLabel.setText("Árvore invertida com sucesso.");
+            }
+        });
 
         btnSalvar.addActionListener(e -> {
             String nomeArquivo = "arvore_salva.txt";

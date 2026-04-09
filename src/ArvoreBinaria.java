@@ -32,17 +32,13 @@ public class ArvoreBinaria {
 
         Node temp = root;
         while (true) {
-            // Removemos a linha que bloqueava valores iguais.
-
             if (value < temp.value) {
-                // Vai para a esquerda se for estritamente menor
                 if (temp.left == null) {
                     temp.left = newNode;
                     return true;
                 }
                 temp = temp.left;
             } else {
-                // Vai para a direita se for MAIOR OU IGUAL
                 if (temp.right == null) {
                     temp.right = newNode;
                     return true;
@@ -81,6 +77,18 @@ public class ArvoreBinaria {
         int min = node.value;
         while (node.left != null) { node = node.left; min = node.value; }
         return min;
+    }
+
+    public void inverter() {
+        root = inverterRecursivo(root);
+    }
+
+    private Node inverterRecursivo(Node node) {
+        if (node == null) return null;
+        Node temp = node.left;
+        node.left = inverterRecursivo(node.right);
+        node.right = inverterRecursivo(temp);
+        return node;
     }
 
     public List<String> getTodosCaminhos() {
@@ -177,8 +185,6 @@ public class ArvoreBinaria {
         return -1;
     }
 
-
-
     private Node buscarNo(Node node, int valor) {
         if (node == null || node.value == valor) return node;
         if (valor < node.value) return buscarNo(node.left, valor);
@@ -224,12 +230,10 @@ public class ArvoreBinaria {
         return getAlturaArvore();
     }
 
-
     private int contarNos(Node node) {
         if (node == null) return 0;
         return 1 + contarNos(node.left) + contarNos(node.right);
     }
-
 
     private boolean isCheia() {
         if (root == null) return true;
@@ -238,7 +242,6 @@ public class ArvoreBinaria {
         return contarNos(root) == totalNosEsperados;
     }
 
-    // 2. COMPLETA: Níveis preenchidos da esquerda para a direita sem buracos.
     private boolean isCompleta(Node node, int index, int totalNos) {
         if (node == null) return true;
         if (index >= totalNos) return false;
@@ -246,10 +249,9 @@ public class ArvoreBinaria {
                 isCompleta(node.right, 2 * index + 2, totalNos);
     }
 
-    // 3. LINEAR: Cada nó possui no máximo 1 filho.
     private boolean isLinear(Node node) {
         if (node == null) return true;
-        if (node.left != null && node.right != null) return false; // Tem 2 filhos, não é linear
+        if (node.left != null && node.right != null) return false;
         if (node.left != null) return isLinear(node.left);
         if (node.right != null) return isLinear(node.right);
         return true;
@@ -257,9 +259,7 @@ public class ArvoreBinaria {
 
     public String classificarArvore() {
         if (root == null) return "Árvore Vazia";
-
         int totalNos = contarNos(root);
-
         if (isLinear(root)) {
             return "Degenerativa";
         } else if (isCheia()) {
@@ -267,7 +267,6 @@ public class ArvoreBinaria {
         } else if (isCompleta(root, 0, totalNos)) {
             return "Completa";
         }
-
         return "Incompleta";
     }
 

@@ -25,15 +25,28 @@ public class ArvoreBinaria {
 
     public boolean insert(int value) {
         Node newNode = new Node(value);
-        if (root == null) { root = newNode; return true; }
+        if (root == null) {
+            root = newNode;
+            return true;
+        }
+
         Node temp = root;
         while (true) {
-            if (newNode.value == temp.value) return false;
-            if (newNode.value < temp.value) {
-                if (temp.left == null) { temp.left = newNode; return true; }
+            // Removemos a linha que bloqueava valores iguais.
+
+            if (value < temp.value) {
+                // Vai para a esquerda se for estritamente menor
+                if (temp.left == null) {
+                    temp.left = newNode;
+                    return true;
+                }
                 temp = temp.left;
             } else {
-                if (temp.right == null) { temp.right = newNode; return true; }
+                // Vai para a direita se for MAIOR OU IGUAL
+                if (temp.right == null) {
+                    temp.right = newNode;
+                    return true;
+                }
                 temp = temp.right;
             }
         }

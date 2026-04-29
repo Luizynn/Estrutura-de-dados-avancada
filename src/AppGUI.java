@@ -14,7 +14,7 @@ public class AppGUI extends JFrame {
 
         setTitle("Gerenciador de Árvore Binária");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(780, 680);
+        setSize(800, 680);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
@@ -50,12 +50,14 @@ public class AppGUI extends JFrame {
         JButton btnMostrar = new JButton("Visualizar Gráfico");
         JButton btnSalvar  = new JButton("Salvar em TXT");
         JButton btnLimpar  = new JButton("Limpar Árvore");
+        JButton btnNovaArvore = new JButton("Nova Árvore");
         JButton btnInverter = new JButton("Inverter Árvore");
 
         actionPanel.add(btnMostrar);
         actionPanel.add(btnInverter);
         actionPanel.add(btnSalvar);
         actionPanel.add(btnLimpar);
+        actionPanel.add(btnNovaArvore);
 
         JPanel painelPercursos = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         painelPercursos.setBorder(BorderFactory.createTitledBorder("Caminhos / Percursos"));
@@ -179,6 +181,12 @@ public class AppGUI extends JFrame {
 
         btnLimpar.addActionListener(e -> { arvore.clear(); statusLabel.setText("Árvore limpa."); });
 
+        btnNovaArvore.addActionListener(e -> { 
+            arvore.clear(); 
+            escolherTipoArvore(); 
+            statusLabel.setText("Nova árvore iniciada."); 
+        });
+
         btnPre.addActionListener(e -> mostrarPercurso("Pré-ordem", arvore.getPreOrdem()));
         btnEm.addActionListener(e -> mostrarPercurso("Em-ordem (Crescente)", arvore.getEmOrdem()));
         btnPos.addActionListener(e -> mostrarPercurso("Pós-ordem", arvore.getPosOrdem()));
@@ -202,6 +210,29 @@ public class AppGUI extends JFrame {
                 } else { statusLabel.setText("Valor não encontrado."); }
             } catch (Exception ex) { statusLabel.setText("Digite um valor."); }
         });
+
+        // Chama a escolha logo na inicialização
+        SwingUtilities.invokeLater(this::escolherTipoArvore);
+    }
+
+    private void escolherTipoArvore() {
+        Object[] options = {"Árvore AVL", "Árvore Binária de Busca"};
+        int n = JOptionPane.showOptionDialog(this,
+                "Qual tipo de árvore você deseja criar?",
+                "Tipo de Árvore",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if (n == 0) {
+            arvore.setAVL(true);
+            setTitle("Gerenciador de Árvore Binária - [Modo: AVL]");
+        } else {
+            arvore.setAVL(false);
+            setTitle("Gerenciador de Árvore Binária - [Modo: Binária de Busca]");
+        }
     }
 
     private void mostrarPercurso(String titulo, String resultado) {

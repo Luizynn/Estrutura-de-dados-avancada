@@ -9,43 +9,113 @@ import java.util.List;
 public class ArvoreBinaria {
 
     Node root;
+    private boolean isAVL = false;
+
+    public void setAVL(boolean isAVL) {
+        this.isAVL = isAVL;
+    }
+
+    public boolean isAVL() {
+        return isAVL;
+    }
 
     public class Node {
         int value;
         Node left;
         Node right;
+        int altura;
 
         Node(int value) {
             this.value = value;
+            this.altura = 1;
         }
     }
 
     public Node getRoot() { return root; }
     public void clear() { root = null; }
 
+    private boolean isInserted = false;
+
     public boolean insert(int value) {
-        Node newNode = new Node(value);
-        if (root == null) {
-            root = newNode;
-            return true;
+        isInserted = false;
+        root = insertNode(root, value);
+        return isInserted;
+    }
+
+    private Node insertNode(Node node, int value) {
+        if (node == null) {
+            isInserted = true;
+            return new Node(value);
         }
 
-        Node temp = root;
-        while (true) {
-            if (value < temp.value) {
-                if (temp.left == null) {
-                    temp.left = newNode;
-                    return true;
-                }
-                temp = temp.left;
-            } else {
-                if (temp.right == null) {
-                    temp.right = newNode;
-                    return true;
-                }
-                temp = temp.right;
-            }
+        if (value < node.value) {
+            node.left = insertNode(node.left, value);
+        } else if (value > node.value) {
+            node.right = insertNode(node.right, value);
+        } else {
+            return node;
         }
+
+        if (isAVL) {
+            return balancear(node);
+        } else {
+            atualizarAltura(node);
+            return node;
+        }
+    }
+
+    private int getAltura(Node node) {
+        return (node == null) ? 0 : node.altura;
+    }
+
+    private int getFatorBalanceamento(Node node) {
+        return (node == null) ? 0 : getAltura(node.left) - getAltura(node.right);
+    }
+
+    private void atualizarAltura(Node node) {
+        if (node != null) {
+            node.altura = 1 + Math.max(getAltura(node.left), getAltura(node.right));
+        }
+    }
+
+    private Node rotacaoDireita(Node y) {
+        Node x = y.left;
+        Node T2 = x.right;
+        x.right = y;
+        y.left = T2;
+        atualizarAltura(y);
+        atualizarAltura(x);
+        return x;
+    }
+
+    private Node rotacaoEsquerda(Node x) {
+        Node y = x.right;
+        Node T2 = y.left;
+        y.left = x;
+        x.right = T2;
+        atualizarAltura(x);
+        atualizarAltura(y);
+        return y;
+    }
+
+    private Node balancear(Node node) {
+        if (node == null) return null;
+        atualizarAltura(node);
+        int balance = getFatorBalanceamento(node);
+
+        if (balance > 1 && getFatorBalanceamento(node.left) >= 0)
+            return rotacaoDireita(node);
+        if (balance < -1 && getFatorBalanceamento(node.right) <= 0)
+            return rotacaoEsquerda(node);
+        if (balance > 1 && getFatorBalanceamento(node.left) < 0) {
+            node.left = rotacaoEsquerda(node.left);
+            return rotacaoDireita(node);
+        }
+        if (balance < -1 && getFatorBalanceamento(node.right) > 0) {
+            node.right = rotacaoDireita(node.right);
+            return rotacaoEsquerda(node);
+        }
+        return node;
     }
 
     public boolean contains(int value) {
@@ -70,6 +140,9 @@ public class ArvoreBinaria {
             node.value = minValue(node.right);
             node.right = deleteNode(node.right, node.value);
         }
+        if (node == null) return null;
+        if (isAVL) return balancear(node);
+        atualizarAltura(node);
         return node;
     }
 
@@ -143,6 +216,15 @@ public class ArvoreBinaria {
     public void buildFromParentheses(String input) throws Exception {
         if (input == null || input.trim().isEmpty()) { this.root = null; return; }
         this.root = parseParentheses(input.trim());
+        atualizarAlturaDeTodosOsNos(this.root);
+    }
+
+    private int atualizarAlturaDeTodosOsNos(Node node) {
+        if (node == null) return 0;
+        int altLeft = atualizarAlturaDeTodosOsNos(node.left);
+        int altRight = atualizarAlturaDeTodosOsNos(node.right);
+        node.altura = 1 + Math.max(altLeft, altRight);
+        return node.altura;
     }
 
     private Node parseParentheses(String s) throws Exception {

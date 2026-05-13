@@ -52,12 +52,14 @@ public class AppGUI extends JFrame {
         JButton btnLimpar  = new JButton("Limpar Árvore");
         JButton btnNovaArvore = new JButton("Nova Árvore");
         JButton btnInverter = new JButton("Inverter Árvore");
+        JButton btnAuditoria = new JButton("Auditoria AVL");
 
         actionPanel.add(btnMostrar);
         actionPanel.add(btnInverter);
         actionPanel.add(btnSalvar);
         actionPanel.add(btnLimpar);
         actionPanel.add(btnNovaArvore);
+        actionPanel.add(btnAuditoria);
 
         JPanel painelPercursos = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         painelPercursos.setBorder(BorderFactory.createTitledBorder("Caminhos / Percursos"));
@@ -171,6 +173,23 @@ public class AppGUI extends JFrame {
                 arvore.inverter();
                 arvore.mostrarGUI();
                 statusLabel.setText("Árvore invertida com sucesso.");
+            }
+        });
+
+        btnAuditoria.addActionListener(e -> {
+            if (!arvore.isAVL()) {
+                statusLabel.setText("Auditoria disponível apenas para Árvore AVL!");
+                return;
+            }
+            List<String> logs = arvore.getAuditoria();
+            if (logs == null || logs.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Nenhuma ação foi registrada ainda.", "Auditoria AVL", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JTextArea textArea = new JTextArea(20, 50);
+                textArea.setText(String.join("\n", logs));
+                textArea.setEditable(false);
+                JScrollPane scrollPane = new JScrollPane(textArea);
+                JOptionPane.showMessageDialog(this, scrollPane, "Auditoria de Operações e Rotações (AVL)", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 

@@ -10,9 +10,19 @@ public class ArvoreBinaria {
 
     Node root;
     private boolean isAVL = false;
+    private List<String> auditoria = new ArrayList<>();
+
+    public List<String> getAuditoria() {
+        return auditoria;
+    }
+
+    public void clearAuditoria() {
+        auditoria.clear();
+    }
 
     public void setAVL(boolean isAVL) {
         this.isAVL = isAVL;
+        if (isAVL) clearAuditoria();
     }
 
     public boolean isAVL() {
@@ -32,13 +42,18 @@ public class ArvoreBinaria {
     }
 
     public Node getRoot() { return root; }
-    public void clear() { root = null; }
+    public void clear() { root = null; auditoria.clear(); }
 
     private boolean isInserted = false;
 
     public boolean insert(int value) {
+        if (isAVL) auditoria.add("-> Solicitada inserção do valor: " + value);
         isInserted = false;
         root = insertNode(root, value);
+        if (isAVL) {
+            if (isInserted) auditoria.add("   Inserção do valor " + value + " concluída.");
+            else auditoria.add("   Valor " + value + " já existe. Nenhuma alteração.");
+        }
         return isInserted;
     }
 
@@ -79,6 +94,7 @@ public class ArvoreBinaria {
     }
 
     private Node rotacaoDireita(Node y) {
+        if (isAVL) auditoria.add("   * Rotação Simples à Direita no nó [" + y.value + "]");
         Node x = y.left;
         Node T2 = x.right;
         x.right = y;
@@ -89,6 +105,7 @@ public class ArvoreBinaria {
     }
 
     private Node rotacaoEsquerda(Node x) {
+        if (isAVL) auditoria.add("   * Rotação Simples à Esquerda no nó [" + x.value + "]");
         Node y = x.right;
         Node T2 = y.left;
         y.left = x;
@@ -98,22 +115,38 @@ public class ArvoreBinaria {
         return y;
     }
 
+    private Node rotacaoDuplaEsquerdaDireita(Node node) {
+        if (isAVL) auditoria.add("   * Iniciando Rotação Dupla (Esquerda-Direita) no nó [" + node.value + "]");
+        node.left = rotacaoEsquerda(node.left);
+        return rotacaoDireita(node);
+    }
+
+    private Node rotacaoDuplaDireitaEsquerda(Node node) {
+        if (isAVL) auditoria.add("   * Iniciando Rotação Dupla (Direita-Esquerda) no nó [" + node.value + "]");
+        node.right = rotacaoDireita(node.right);
+        return rotacaoEsquerda(node);
+    }
+
     private Node balancear(Node node) {
         if (node == null) return null;
         atualizarAltura(node);
         int balance = getFatorBalanceamento(node);
 
-        if (balance > 1 && getFatorBalanceamento(node.left) >= 0)
-            return rotacaoDireita(node);
-        if (balance < -1 && getFatorBalanceamento(node.right) <= 0)
-            return rotacaoEsquerda(node);
-        if (balance > 1 && getFatorBalanceamento(node.left) < 0) {
-            node.left = rotacaoEsquerda(node.left);
+        if (balance > 1 && getFatorBalanceamento(node.left) >= 0) {
+            if (isAVL) auditoria.add("   ! Desbalanceamento detectado no nó [" + node.value + "] (Fator: " + balance + "). Aplicando rotação simples à direita.");
             return rotacaoDireita(node);
         }
-        if (balance < -1 && getFatorBalanceamento(node.right) > 0) {
-            node.right = rotacaoDireita(node.right);
+        if (balance < -1 && getFatorBalanceamento(node.right) <= 0) {
+            if (isAVL) auditoria.add("   ! Desbalanceamento detectado no nó [" + node.value + "] (Fator: " + balance + "). Aplicando rotação simples à esquerda.");
             return rotacaoEsquerda(node);
+        }
+        if (balance > 1 && getFatorBalanceamento(node.left) < 0) {
+            if (isAVL) auditoria.add("   ! Desbalanceamento detectado no nó [" + node.value + "] (Fator: " + balance + "). Condição para rotação dupla identificada.");
+            return rotacaoDuplaEsquerdaDireita(node);
+        }
+        if (balance < -1 && getFatorBalanceamento(node.right) > 0) {
+            if (isAVL) auditoria.add("   ! Desbalanceamento detectado no nó [" + node.value + "] (Fator: " + balance + "). Condição para rotação dupla identificada.");
+            return rotacaoDuplaDireitaEsquerda(node);
         }
         return node;
     }
@@ -128,7 +161,11 @@ public class ArvoreBinaria {
         return false;
     }
 
-    public void delete(int value) { root = deleteNode(root, value); }
+    public void delete(int value) { 
+        if (isAVL) auditoria.add("-> Solicitada remoção do valor: " + value);
+        root = deleteNode(root, value); 
+        if (isAVL) auditoria.add("   Remoção do valor " + value + " concluída (caso existisse).");
+    }
 
     private Node deleteNode(Node node, int value) {
         if (node == null) return null;
@@ -217,6 +254,10 @@ public class ArvoreBinaria {
         if (input == null || input.trim().isEmpty()) { this.root = null; return; }
         this.root = parseParentheses(input.trim());
         atualizarAlturaDeTodosOsNos(this.root);
+        if (isAVL) {
+            auditoria.clear();
+            auditoria.add("-> Árvore carregada via String (sem balanceamento automático de inserções).");
+        }
     }
 
     private int atualizarAlturaDeTodosOsNos(Node node) {

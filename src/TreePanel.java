@@ -28,6 +28,26 @@ public class TreePanel extends JPanel {
     private static final String STYLE_INTERNAL = STYLE_BASE + "fillColor=#AED6F1;";
     private static final String STYLE_LEAF     = STYLE_BASE + "fillColor=#ABEBC6;";
 
+    private static final String STYLE_RED =
+            "shape=ellipse;"        +
+            "strokeColor=#7B241C;"  +
+            "fontColor=#FFFFFF;"    +
+            "fillColor=#E74C3C;"    +
+            "fontStyle=1;"          +
+            "fontSize=12;"          +
+            "verticalAlign=middle;" +
+            "align=center;";
+
+    private static final String STYLE_BLACK =
+            "shape=ellipse;"        +
+            "strokeColor=#1A252F;"  +
+            "fontColor=#FFFFFF;"    +
+            "fillColor=#2C3E50;"    +
+            "fontStyle=1;"          +
+            "fontSize=12;"          +
+            "verticalAlign=middle;" +
+            "align=center;";
+
     private static final String STYLE_ARESTA =
             "strokeColor=#555555;"  +
                     "strokeWidth=1.5;"      +
@@ -35,8 +55,18 @@ public class TreePanel extends JPanel {
 
     private mxGraphComponent graphComponent;
     private final Map<ArvoreBinaria.Node, int[]> coordenadas = new HashMap<>();
+    private ArvoreBinaria arvore;
 
     public TreePanel(ArvoreBinaria.Node rootNode) {
+        this(null, rootNode);
+    }
+
+    public TreePanel(ArvoreBinaria arvore) {
+        this(arvore, arvore != null ? arvore.getRoot() : null);
+    }
+
+    public TreePanel(ArvoreBinaria arvore, ArvoreBinaria.Node rootNode) {
+        this.arvore = arvore;
         setLayout(new BorderLayout());
         construirGrafo(rootNode);
     }
@@ -96,9 +126,13 @@ public class TreePanel extends JPanel {
         if (node == null) return;
 
         String style;
-        if (node == root) style = STYLE_ROOT;
-        else if (node.left == null && node.right == null) style = STYLE_LEAF;
-        else style = STYLE_INTERNAL;
+        if (arvore != null && arvore.isRedBlack()) {
+            style = node.isRed ? STYLE_RED : STYLE_BLACK;
+        } else {
+            if (node == root) style = STYLE_ROOT;
+            else if (node.left == null && node.right == null) style = STYLE_LEAF;
+            else style = STYLE_INTERNAL;
+        }
 
         int[] coord = coordenadas.get(node);
         int px = coord[0] * (NO_LARGURA + ESPACO_H);
@@ -126,9 +160,14 @@ public class TreePanel extends JPanel {
     private JPanel criarLegenda() {
         JPanel legenda = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
         legenda.setBackground(Color.WHITE);
-        legenda.add(criarItemLegenda("Raiz", new Color(0xF1, 0xC4, 0x0F)));
-        legenda.add(criarItemLegenda("Interno", new Color(0xAE, 0xD6, 0xF1)));
-        legenda.add(criarItemLegenda("Folha", new Color(0xAB, 0xEB, 0xC6)));
+        if (arvore != null && arvore.isRedBlack()) {
+            legenda.add(criarItemLegenda("Negro (Black)", new Color(0x2C, 0x3E, 0x50)));
+            legenda.add(criarItemLegenda("Rubro (Red)", new Color(0xE7, 0x4C, 0x3C)));
+        } else {
+            legenda.add(criarItemLegenda("Raiz", new Color(0xF1, 0xC4, 0x0F)));
+            legenda.add(criarItemLegenda("Interno", new Color(0xAE, 0xD6, 0xF1)));
+            legenda.add(criarItemLegenda("Folha", new Color(0xAB, 0xEB, 0xC6)));
+        }
         return legenda;
     }
 

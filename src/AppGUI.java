@@ -52,7 +52,8 @@ public class AppGUI extends JFrame {
         JButton btnLimpar  = new JButton("Limpar Árvore");
         JButton btnNovaArvore = new JButton("Nova Árvore");
         JButton btnInverter = new JButton("Inverter Árvore");
-        JButton btnAuditoria = new JButton("Auditoria AVL");
+        JButton btnAuditoria = new JButton("Texto de Auditoria");
+        JButton btnSequencia = new JButton("Sequência de Entrada");
 
         actionPanel.add(btnMostrar);
         actionPanel.add(btnInverter);
@@ -60,6 +61,7 @@ public class AppGUI extends JFrame {
         actionPanel.add(btnLimpar);
         actionPanel.add(btnNovaArvore);
         actionPanel.add(btnAuditoria);
+        actionPanel.add(btnSequencia);
 
         JPanel painelPercursos = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         painelPercursos.setBorder(BorderFactory.createTitledBorder("Caminhos / Percursos"));
@@ -177,19 +179,30 @@ public class AppGUI extends JFrame {
         });
 
         btnAuditoria.addActionListener(e -> {
-            if (!arvore.isAVL()) {
-                statusLabel.setText("Auditoria disponível apenas para Árvore AVL!");
+            if (!arvore.isAVL() && !arvore.isRedBlack()) {
+                statusLabel.setText("Auditoria disponível apenas para AVL ou Rubro-Negra!");
                 return;
             }
             List<String> logs = arvore.getAuditoria();
             if (logs == null || logs.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Nenhuma ação foi registrada ainda.", "Auditoria AVL", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Nenhuma ação foi registrada ainda.", "Auditoria", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JTextArea textArea = new JTextArea(20, 50);
                 textArea.setText(String.join("\n", logs));
                 textArea.setEditable(false);
                 JScrollPane scrollPane = new JScrollPane(textArea);
-                JOptionPane.showMessageDialog(this, scrollPane, "Auditoria de Operações e Rotações (AVL)", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, scrollPane, "Auditoria de Operações (AVL / Rubro-Negra)", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        btnSequencia.addActionListener(e -> {
+            List<Integer> seq = arvore.getSequenciaInsercao();
+            if (seq == null || seq.isEmpty()) {
+                statusLabel.setText("Nenhum dado foi inserido ainda.");
+                JOptionPane.showMessageDialog(this, "A sequência de dados de entrada está vazia.", "Sequência de Entrada", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                String msg = seq.toString().replace("[", "").replace("]", "");
+                JOptionPane.showMessageDialog(this, "Sequência de dados inseridos:\n" + msg, "Sequência de Entrada", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
@@ -235,21 +248,28 @@ public class AppGUI extends JFrame {
     }
 
     private void escolherTipoArvore() {
-        Object[] options = {"Árvore AVL", "Árvore Binária de Busca"};
+        Object[] options = {"Árvore AVL", "Árvore Rubro-Negra", "Árvore Binária de Busca"};
         int n = JOptionPane.showOptionDialog(this,
                 "Qual tipo de árvore você deseja criar?",
                 "Tipo de Árvore",
-                JOptionPane.YES_NO_OPTION,
+                JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 options,
                 options[0]);
 
+        arvore.clear();
         if (n == 0) {
             arvore.setAVL(true);
+            arvore.setRedBlack(false);
             setTitle("Gerenciador de Árvore Binária - [Modo: AVL]");
+        } else if (n == 1) {
+            arvore.setAVL(false);
+            arvore.setRedBlack(true);
+            setTitle("Gerenciador de Árvore Binária - [Modo: Rubro-Negra]");
         } else {
             arvore.setAVL(false);
+            arvore.setRedBlack(false);
             setTitle("Gerenciador de Árvore Binária - [Modo: Binária de Busca]");
         }
     }

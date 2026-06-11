@@ -10,7 +10,17 @@ public class ArvoreBinaria {
 
     Node root;
     private boolean isAVL = false;
+    private boolean isRedBlack = false;
     private List<String> auditoria = new ArrayList<>();
+    private List<Integer> sequenciaInsercao = new ArrayList<>();
+
+    public List<Integer> getSequenciaInsercao() {
+        return sequenciaInsercao;
+    }
+
+    public void clearSequenciaInsercao() {
+        sequenciaInsercao.clear();
+    }
 
     public List<String> getAuditoria() {
         return auditoria;
@@ -29,32 +39,179 @@ public class ArvoreBinaria {
         return isAVL;
     }
 
+    public void setRedBlack(boolean isRedBlack) {
+        this.isRedBlack = isRedBlack;
+        if (isRedBlack) clearAuditoria();
+    }
+
+    public boolean isRedBlack() {
+        return isRedBlack;
+    }
+
     public class Node {
         int value;
         Node left;
         Node right;
+        Node parent;
         int altura;
+        boolean isRed;
 
         Node(int value) {
             this.value = value;
             this.altura = 1;
+            this.isRed = true;
         }
     }
 
     public Node getRoot() { return root; }
-    public void clear() { root = null; auditoria.clear(); }
+    public void clear() { root = null; auditoria.clear(); sequenciaInsercao.clear(); }
 
     private boolean isInserted = false;
 
     public boolean insert(int value) {
         if (isAVL) auditoria.add("-> Solicitada inserção do valor: " + value);
+        if (isRedBlack) auditoria.add("-> Solicitada inserção na Árvore Rubro-Negra: " + value);
         isInserted = false;
-        root = insertNode(root, value);
-        if (isAVL) {
-            if (isInserted) auditoria.add("   Inserção do valor " + value + " concluída.");
-            else auditoria.add("   Valor " + value + " já existe. Nenhuma alteração.");
+        if (isRedBlack) {
+            Node newNode = new Node(value);
+            root = insertNodeRBT(root, newNode);
+            if (isInserted) {
+                fixInsertRBT(newNode);
+                auditoria.add("   Inserção do valor " + value + " concluída na Árvore Rubro-Negra.");
+                sequenciaInsercao.add(value);
+            } else {
+                auditoria.add("   Valor " + value + " já existe. Nenhuma alteração.");
+            }
+        } else {
+            root = insertNode(root, value);
+            if (isInserted) {
+                sequenciaInsercao.add(value);
+            }
+            if (isAVL) {
+                if (isInserted) auditoria.add("   Inserção do valor " + value + " concluída.");
+                else auditoria.add("   Valor " + value + " já existe. Nenhuma alteração.");
+            }
         }
         return isInserted;
+    }
+
+    private Node insertNodeRBT(Node root, Node newNode) {
+        Node y = null;
+        Node x = root;
+
+        while (x != null) {
+            y = x;
+            if (newNode.value < x.value) {
+                x = x.left;
+            } else if (newNode.value > x.value) {
+                x = x.right;
+            } else {
+                isInserted = false;
+                return root;
+            }
+        }
+
+        newNode.parent = y;
+        if (y == null) {
+            root = newNode;
+        } else if (newNode.value < y.value) {
+            y.left = newNode;
+        } else {
+            y.right = newNode;
+        }
+
+        isInserted = true;
+        return root;
+    }
+
+    private void fixInsertRBT(Node z) {
+        while (z.parent != null && z.parent.isRed) {
+            if (z.parent == z.parent.parent.left) {
+                Node y = z.parent.parent.right;
+                if (y != null && y.isRed) {
+                    auditoria.add("   ! Conflito Vermelho-Vermelho no nó [" + z.value + "] e pai [" + z.parent.value + "]. Tio [" + y.value + "] é Vermelho.");
+                    auditoria.add("     * Recoloração: Pai [" + z.parent.value + "] e Tio [" + y.value + "] -> Preto; Avô [" + z.parent.parent.value + "] -> Vermelho.");
+                    z.parent.isRed = false;
+                    y.isRed = false;
+                    z.parent.parent.isRed = true;
+                    z = z.parent.parent;
+                } else {
+                    if (z == z.parent.right) {
+                        auditoria.add("   ! Conflito Vermelho-Vermelho (Caso Direita/Esquerda). Rotacionando esquerda no pai [" + z.parent.value + "].");
+                        z = z.parent;
+                        leftRotateRBT(z);
+                    }
+                    auditoria.add("   ! Conflito Vermelho-Vermelho (Caso Esquerda/Esquerda).");
+                    auditoria.add("     * Recoloração: Pai [" + z.parent.value + "] -> Preto; Avô [" + z.parent.parent.value + "] -> Vermelho.");
+                    z.parent.isRed = false;
+                    z.parent.parent.isRed = true;
+                    auditoria.add("     * Rotação à Direita no avô [" + z.parent.parent.value + "].");
+                    rightRotateRBT(z.parent.parent);
+                }
+            } else {
+                Node y = z.parent.parent.left;
+                if (y != null && y.isRed) {
+                    auditoria.add("   ! Conflito Vermelho-Vermelho no nó [" + z.value + "] e pai [" + z.parent.value + "]. Tio [" + y.value + "] é Vermelho.");
+                    auditoria.add("     * Recoloração: Pai [" + z.parent.value + "] e Tio [" + y.value + "] -> Preto; Avô [" + z.parent.parent.value + "] -> Vermelho.");
+                    z.parent.isRed = false;
+                    y.isRed = false;
+                    z.parent.parent.isRed = true;
+                    z = z.parent.parent;
+                } else {
+                    if (z == z.parent.left) {
+                        auditoria.add("   ! Conflito Vermelho-Vermelho (Caso Esquerda/Direita). Rotacionando direita no pai [" + z.parent.value + "].");
+                        z = z.parent;
+                        rightRotateRBT(z);
+                    }
+                    auditoria.add("   ! Conflito Vermelho-Vermelho (Caso Direita/Direita).");
+                    auditoria.add("     * Recoloração: Pai [" + z.parent.value + "] -> Preto; Avô [" + z.parent.parent.value + "] -> Vermelho.");
+                    z.parent.isRed = false;
+                    z.parent.parent.isRed = true;
+                    auditoria.add("     * Rotação à Esquerda no avô [" + z.parent.parent.value + "].");
+                    leftRotateRBT(z.parent.parent);
+                }
+            }
+        }
+        if (root.isRed) {
+            auditoria.add("   * Forçando cor da Raiz [" + root.value + "] -> Preto.");
+            root.isRed = false;
+        }
+    }
+
+    private void leftRotateRBT(Node x) {
+        Node y = x.right;
+        x.right = y.left;
+        if (y.left != null) {
+            y.left.parent = x;
+        }
+        y.parent = x.parent;
+        if (x.parent == null) {
+            this.root = y;
+        } else if (x == x.parent.left) {
+            x.parent.left = y;
+        } else {
+            x.parent.right = y;
+        }
+        y.left = x;
+        x.parent = y;
+    }
+
+    private void rightRotateRBT(Node y) {
+        Node x = y.left;
+        y.left = x.right;
+        if (x.right != null) {
+            x.right.parent = y;
+        }
+        x.parent = y.parent;
+        if (y.parent == null) {
+            this.root = x;
+        } else if (y == y.parent.left) {
+            y.parent.left = x;
+        } else {
+            y.parent.right = x;
+        }
+        x.right = y;
+        y.parent = x;
     }
 
     private Node insertNode(Node node, int value) {
@@ -163,8 +320,171 @@ public class ArvoreBinaria {
 
     public void delete(int value) { 
         if (isAVL) auditoria.add("-> Solicitada remoção do valor: " + value);
-        root = deleteNode(root, value); 
+        if (isRedBlack) auditoria.add("-> Solicitada remoção na Árvore Rubro-Negra: " + value);
+        if (isRedBlack) {
+            deleteRBT(value);
+        } else {
+            root = deleteNode(root, value); 
+        }
         if (isAVL) auditoria.add("   Remoção do valor " + value + " concluída (caso existisse).");
+        if (isRedBlack) auditoria.add("   Remoção do valor " + value + " concluída na Árvore Rubro-Negra (caso existisse).");
+    }
+
+    private void deleteRBT(int value) {
+        Node z = buscarNo(root, value);
+        if (z == null) {
+            auditoria.add("   Valor " + value + " não encontrado para remoção.");
+            return;
+        }
+        deleteNodeRBT(z);
+    }
+
+    private void deleteNodeRBT(Node z) {
+        Node y = z;
+        boolean yOriginalColor = y.isRed;
+        Node x;
+        Node xParent;
+        if (z.left == null) {
+            x = z.right;
+            xParent = z.parent;
+            transplantRBT(z, z.right);
+        } else if (z.right == null) {
+            x = z.left;
+            xParent = z.parent;
+            transplantRBT(z, z.left);
+        } else {
+            y = minValueNode(z.right);
+            yOriginalColor = y.isRed;
+            x = y.right;
+            if (y.parent == z) {
+                xParent = y;
+            } else {
+                xParent = y.parent;
+                transplantRBT(y, y.right);
+                y.right = z.right;
+                if (y.right != null) {
+                    y.right.parent = y;
+                }
+            }
+            transplantRBT(z, y);
+            y.left = z.left;
+            if (y.left != null) {
+                y.left.parent = y;
+            }
+            y.isRed = z.isRed;
+        }
+        if (!yOriginalColor) {
+            auditoria.add("   ! Remoção de nó Preto [" + y.value + "] viola propriedade de altura preta. Iniciando correção de balanceamento.");
+            fixDeleteRBT(x, xParent);
+        }
+    }
+
+    private void fixDeleteRBT(Node x, Node xParent) {
+        while (x != root && (x == null || !x.isRed)) {
+            if (x == xParent.left) {
+                Node w = xParent.right;
+                if (w != null && w.isRed) {
+                    auditoria.add("     * Caso 1 (Irmão Vermelho): Recolore irmão [" + w.value + "] -> Preto, Pai [" + xParent.value + "] -> Vermelho. Rotaciona esquerda no pai.");
+                    w.isRed = false;
+                    xParent.isRed = true;
+                    leftRotateRBT(xParent);
+                    w = xParent.right;
+                }
+                if (w == null || ((w.left == null || !w.left.isRed) && (w.right == null || !w.right.isRed))) {
+                    auditoria.add("     * Caso 2 (Irmão Preto com filhos Pretos): Recolore irmão [" + (w != null ? w.value : "null") + "] -> Vermelho. Move foco para o pai.");
+                    if (w != null) {
+                        w.isRed = true;
+                    }
+                    x = xParent;
+                    xParent = x.parent;
+                } else {
+                    if (w.right == null || !w.right.isRed) {
+                        if (w.left != null) {
+                            auditoria.add("     * Caso 3 (Irmão Preto, filho esquerdo Vermelho): Recolore filho esquerdo [" + w.left.value + "] -> Preto, Irmão [" + w.value + "] -> Vermelho. Rotaciona direita no irmão.");
+                            w.left.isRed = false;
+                        }
+                        w.isRed = true;
+                        rightRotateRBT(w);
+                        w = xParent.right;
+                    }
+                    auditoria.add("     * Caso 4 (Irmão Preto, filho direito Vermelho): Transpõe cores do pai [" + xParent.value + "] para o irmão [" + (w != null ? w.value : "null") + "], colore pai e filho direito -> Preto. Rotaciona esquerda no pai.");
+                    if (w != null) {
+                        w.isRed = xParent.isRed;
+                        if (w.right != null) {
+                            w.right.isRed = false;
+                        }
+                    }
+                    xParent.isRed = false;
+                    leftRotateRBT(xParent);
+                    x = root;
+                    xParent = null;
+                }
+            } else {
+                Node w = xParent.left;
+                if (w != null && w.isRed) {
+                    auditoria.add("     * Caso 1 (Irmão Vermelho): Recolore irmão [" + w.value + "] -> Preto, Pai [" + xParent.value + "] -> Vermelho. Rotaciona direita no pai.");
+                    w.isRed = false;
+                    xParent.isRed = true;
+                    rightRotateRBT(xParent);
+                    w = xParent.left;
+                }
+                if (w == null || ((w.right == null || !w.right.isRed) && (w.left == null || !w.left.isRed))) {
+                    auditoria.add("     * Caso 2 (Irmão Preto com filhos Pretos): Recolore irmão [" + (w != null ? w.value : "null") + "] -> Vermelho. Move foco para o pai.");
+                    if (w != null) {
+                        w.isRed = true;
+                    }
+                    x = xParent;
+                    xParent = x.parent;
+                } else {
+                    if (w.left == null || !w.left.isRed) {
+                        if (w.right != null) {
+                            auditoria.add("     * Caso 3 (Irmão Preto, filho direito Vermelho): Recolore filho direito [" + w.right.value + "] -> Preto, Irmão [" + w.value + "] -> Vermelho. Rotaciona esquerda no irmão.");
+                            w.right.isRed = false;
+                        }
+                        w.isRed = true;
+                        leftRotateRBT(w);
+                        w = xParent.left;
+                    }
+                    auditoria.add("     * Caso 4 (Irmão Preto, filho esquerdo Vermelho): Transpõe cores do pai [" + xParent.value + "] para o irmão [" + (w != null ? w.value : "null") + "], colore pai e filho esquerdo -> Preto. Rotaciona direita no pai.");
+                    if (w != null) {
+                        w.isRed = xParent.isRed;
+                        if (w.left != null) {
+                            w.left.isRed = false;
+                        }
+                    }
+                    xParent.isRed = false;
+                    rightRotateRBT(xParent);
+                    x = root;
+                    xParent = null;
+                }
+            }
+        }
+        if (x != null) {
+            if (!x.isRed) {
+                auditoria.add("     * Colorindo nó de foco [" + x.value + "] -> Preto.");
+            }
+            x.isRed = false;
+        }
+    }
+
+    private void transplantRBT(Node u, Node v) {
+        if (u.parent == null) {
+            this.root = v;
+        } else if (u == u.parent.left) {
+            u.parent.left = v;
+        } else {
+            u.parent.right = v;
+        }
+        if (v != null) {
+            v.parent = u.parent;
+        }
+    }
+
+    private Node minValueNode(Node node) {
+        while (node.left != null) {
+            node = node.left;
+        }
+        return node;
     }
 
     private Node deleteNode(Node node, int value) {
@@ -258,6 +578,32 @@ public class ArvoreBinaria {
             auditoria.clear();
             auditoria.add("-> Árvore carregada via String (sem balanceamento automático de inserções).");
         }
+        if (isRedBlack) {
+            auditoria.clear();
+            auditoria.add("-> Árvore carregada via String na Árvore Rubro-Negra (cores padrão podem não estar balanceadas).");
+            arrumarPonteirosPaiDeTodosOsNos(this.root, null);
+        }
+        sequenciaInsercao.clear();
+        preencherSequenciaDeInsercaoAPartirDoNo(this.root);
+    }
+
+    private void preencherSequenciaDeInsercaoAPartirDoNo(Node node) {
+        if (node == null) return;
+        sequenciaInsercao.add(node.value);
+        preencherSequenciaDeInsercaoAPartirDoNo(node.left);
+        preencherSequenciaDeInsercaoAPartirDoNo(node.right);
+    }
+
+    private void arrumarPonteirosPaiDeTodosOsNos(Node node, Node parent) {
+        if (node == null) return;
+        node.parent = parent;
+        if (parent == null) {
+            node.isRed = false;
+        } else {
+            node.isRed = true;
+        }
+        arrumarPonteirosPaiDeTodosOsNos(node.left, node);
+        arrumarPonteirosPaiDeTodosOsNos(node.right, node);
     }
 
     private int atualizarAlturaDeTodosOsNos(Node node) {
@@ -406,7 +752,7 @@ public class ArvoreBinaria {
         JFrame frame = new JFrame("Visualização da Árvore Binária");
         frame.setSize(900, 650);
         frame.setLocationRelativeTo(null);
-        frame.add(new TreePanel(root), BorderLayout.CENTER);
+        frame.add(new TreePanel(this), BorderLayout.CENTER);
         frame.setVisible(true);
     }
 }
